@@ -52,8 +52,6 @@ module CentralLogger
         :request_time => Time.now.getutc,
         :application_name => @application_name
       })
-      # In case of exception, make sure it's set
-      runtime = 0
       runtime = Benchmark.measure do
         yield
       end
@@ -62,6 +60,7 @@ module CentralLogger
       # Reraise the exception for anyone else who cares
       raise e
     ensure
+      runtime ||= Benchmark.measure {}
       insert_log_record(runtime)
     end
 
