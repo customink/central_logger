@@ -49,7 +49,7 @@ module CentralLogger
     def mongoize(options={})
       @mongo_record = options.merge({
         :messages => Hash.new { |hash, key| hash[key] = Array.new },
-        :request_time => Time.now.getutc,
+        :request_time => Time.now.to_i,
         :application_name => @application_name
       })
 
