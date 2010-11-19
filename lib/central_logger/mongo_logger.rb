@@ -40,9 +40,6 @@ module CentralLogger
         # remove Rails colorization to get the actual message
         message.gsub!(/(\e(\[([\d;]*[mz]?))?)?/, '').strip! if logging_colorized?
         @mongo_record[:messages][level_to_sym(severity)] << message
-        @@meta_datas.each_pair do |key, value|
-          @mongo_record[key] = value.call
-        end
       end
       super
     end
@@ -59,7 +56,10 @@ module CentralLogger
         :request_time => Time.now.to_i,
         :application_name => @application_name
       })
-
+      @@meta_datas.each_pair do |key, value|
+        puts "---------------------------------------- adding #{value.call} fo #{key} -------------------------------"
+        @mongo_record[key] = value.call
+      end
       runtime = Benchmark.measure{ yield }.real
     rescue Exception => e
       add(3, e.message + "\n" + e.backtrace.join("\n"))
