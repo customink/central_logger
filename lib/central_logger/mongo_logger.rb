@@ -53,9 +53,12 @@ module CentralLogger
         :request_time => Time.now.to_i,
         :application_name => @application_name
       })
+      
+
       @@meta_datas.each_pair do |key, value|
         puts "---------------------------------------- adding #{value.call} fo #{key} -------------------------------"
-        @mongo_record[key] = value.call
+        @mongo_record[key.to_sym] = value.call
+        puts "-------------------------------------------- #{@mongo_record.inspect} -----------------------------"
       end
       runtime = Benchmark.measure{ yield }.real
     rescue Exception => e
