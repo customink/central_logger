@@ -22,10 +22,13 @@ module CentralLogger
     end
 
     def add_metadata(options={})
-      @meta_datas ||= {}
-        options.each_pair do |key, value|
+      @@meta_datas ||= {}
+      options.each_pair do |key, value|
         unless [:messages, :request_time, :ip, :runtime, :application_name].include?(key.to_sym)
-          @meta_datas[key] = value
+          if value.class != Proc
+            value = Proc.new { value }
+          end
+          @@meta_datas[key] = value
         else
           raise ArgumentError, ":#{key} is a reserved key for the central logger. Please choose a different key"
         end
@@ -37,8 +40,8 @@ module CentralLogger
         # remove Rails colorization to get the actual message
         message.gsub!(/(\e(\[([\d;]*[mz]?))?)?/, '').strip! if logging_colorized?
         @mongo_record[:messages][level_to_sym(severity)] << message
-        @meta_datas.each_pair do |key, value|
-          @mongo_record[key] = value
+        @@meta_datas.each_pair do |key, value|
+          @mongo_record[key] = value.call
         end
       end
       super
