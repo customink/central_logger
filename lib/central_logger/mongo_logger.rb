@@ -22,12 +22,13 @@ module CentralLogger
     end
 
     def add_metadata(options={})
-      @mongo_record ||= {}
-      options.each_pair do |key, value|
-        unless [:messages, :request_time, :ip, :runtime, :application_name].include?(key.to_sym)
-          @mongo_record[key] = value
-        else
-          raise ArgumentError, ":#{key} is a reserved key for the central logger. Please choose a different key"
+      if @mongo_record.present?
+        options.each_pair do |key, value|
+          unless [:messages, :request_time, :ip, :runtime, :application_name].include?(key.to_sym)
+            @mongo_record[key] = value
+          else
+            raise ArgumentError, ":#{key} is a reserved key for the central logger. Please choose a different key"
+          end
         end
       end
     end
