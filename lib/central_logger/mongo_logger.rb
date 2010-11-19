@@ -25,9 +25,6 @@ module CentralLogger
       @@meta_datas ||= {}
       options.each_pair do |key, value|
         unless [:messages, :request_time, :ip, :runtime, :application_name].include?(key.to_sym)
-          if value.class != Proc
-            value = Proc.new { value }
-          end
           @@meta_datas[key] = value
         else
           raise ArgumentError, ":#{key} is a reserved key for the central logger. Please choose a different key"
