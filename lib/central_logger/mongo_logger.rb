@@ -22,10 +22,9 @@ module CentralLogger
     end
 
     def add_metadata(options={})
-      @@meta_datas ||= {}
       options.each_pair do |key, value|
         unless [:messages, :request_time, :ip, :runtime, :application_name].include?(key.to_sym)
-          @@meta_datas[key] = value
+          @mongo_record[key] = value
         else
           raise ArgumentError, ":#{key} is a reserved key for the central logger. Please choose a different key"
         end
@@ -53,13 +52,7 @@ module CentralLogger
         :request_time => Time.now.to_i,
         :application_name => @application_name
       })
-      
 
-      @@meta_datas.each_pair do |key, value|
-        puts "---------------------------------------- adding #{value.call} fo #{key} -------------------------------"
-        @mongo_record[key.to_sym] = value.call
-        puts "-------------------------------------------- #{@mongo_record.inspect} -----------------------------"
-      end
       runtime = Benchmark.measure{ yield }.real
     rescue Exception => e
       add(3, e.message + "\n" + e.backtrace.join("\n"))
