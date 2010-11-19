@@ -22,6 +22,7 @@ module CentralLogger
     end
 
     def add_metadata(options={})
+      @mongo_record ||= {}
       options.each_pair do |key, value|
         unless [:messages, :request_time, :ip, :runtime, :application_name].include?(key.to_sym)
           @mongo_record[key] = value
