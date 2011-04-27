@@ -62,6 +62,8 @@ module CentralLogger
       runtime = Benchmark.measure{ yield }.real if block_given?
     rescue Exception => e
       add(3, e.message + "\n" + e.backtrace.join("\n"))
+      # maybe add this to find more quickly errors ?
+      @mongo_record[:is_exception] = true
       # Reraise the exception for anyone else who cares
       raise e
     ensure
