@@ -19,8 +19,12 @@ module CentralLogger
     def initialize(options={})
       path = options[:path] || File.join(Rails.root, "log/#{Rails.env}.log")
       level = options[:level] || DEBUG
-      super(path, level)
       internal_initialize
+      if disable_file_logging?
+        @level = level
+      else
+        super(path, level)
+      end
     rescue => e
       # should use a config block for this
       Rails.env.production? ? (raise e) : (puts "Using BufferedLogger due to exception: " + e.message)
@@ -43,7 +47,7 @@ module CentralLogger
         @mongo_record[:messages][LOG_LEVEL_SYM[severity]] << msg
       end
       # may modify the original message
-      super
+      disable_file_logging? ? message : super
     end
 
     # Drop the capped_collection and recreate it
@@ -86,6 +90,10 @@ module CentralLogger
         configure
         connect
         check_for_collection
+      end
+
+      def disable_file_logging?
+        @db_configuration.fetch('disable_file_logging', false)
       end
 
       def configure
