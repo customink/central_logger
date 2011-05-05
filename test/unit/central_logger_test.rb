@@ -1,6 +1,7 @@
 require 'test_helper'
 require 'central_logger/mongo_logger'
 require 'tempfile'
+require 'pathname'
 
 # test the basic stuff
 class CentralLogger::MongoLoggerTest < Test::Unit::TestCase
@@ -17,6 +18,7 @@ class CentralLogger::MongoLoggerTest < Test::Unit::TestCase
     context "in instantiation" do
       setup do
         CentralLogger::MongoLogger.any_instance.stubs(:internal_initialize).returns(nil)
+        CentralLogger::MongoLogger.any_instance.stubs(:disable_file_logging?).returns(false)
         @central_logger = CentralLogger::MongoLogger.new
       end
 
@@ -194,6 +196,55 @@ class CentralLogger::MongoLoggerTest < Test::Unit::TestCase
     teardown do
       file = File.join(CONFIG_DIR, DEFAULT_CONFIG)
       File.delete(file) if File.exist?(file)
+    end
+  end
+
+  context "A CentralLogger::MongoLogger without file logging" do
+    setup do
+      FileUtils.cp(File.join(SAMPLE_CONFIG_DIR, DEFAULT_CONFIG_WITH_NO_FILE_LOGGING),  File.join(CONFIG_DIR, DEFAULT_CONFIG))
+      @log_file = Pathname.new('log.out')
+      FileUtils.touch(@log_file)
+    end
+
+    context "in instantiation" do
+      should "not call super in the initialize method" do
+        CentralLogger::MongoLogger.any_instance.expects(:open).never # Stubbing out super doesn't work, so we use this side effect instead.
+        CentralLogger::MongoLogger.new
+      end
+
+      should "set level" do
+        level = stub('level')
+        logger = CentralLogger::MongoLogger.new(:level => level)
+        assert_equal level, logger.level
+      end
+      should "set buffer" do
+        assert_equal({}, CentralLogger::MongoLogger.new.instance_variable_get(:@buffer))
+      end
+      should "set auto flushing" do
+        assert_equal 1, CentralLogger::MongoLogger.new.instance_variable_get(:@auto_flushing)
+      end
+      should "set guard" do
+        assert CentralLogger::MongoLogger.new.instance_variable_get(:@guard).is_a?(Mutex)
+      end
+    end
+
+    context "after instantiation" do
+      context "upon insertion of a log record" do
+        setup do
+          @central_logger = CentralLogger::MongoLogger.new(:path => @log_file)
+          log("Test")
+        end
+
+        should "not log the record to a file" do
+          assert_equal '', open(@log_file).read
+        end
+      end
+    end
+
+    teardown do
+      file = File.join(CONFIG_DIR, DEFAULT_CONFIG)
+      File.delete(file) if File.exist?(file)
+      File.delete(@log_file)
     end
   end
 end

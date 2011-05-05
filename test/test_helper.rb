@@ -15,6 +15,7 @@ class Test::Unit::TestCase
   CONFIG_DIR = Rails.root.join("config")
   SAMPLE_CONFIG_DIR = File.join(CONFIG_DIR, "samples")
   DEFAULT_CONFIG = "database.yml"
+  DEFAULT_CONFIG_WITH_NO_FILE_LOGGING = "database_no_file_logging.yml"
   DEFAULT_CONFIG_WITH_AUTH = "database_with_auth.yml"
   MONGOID_CONFIG = "mongoid.yml"
   REPLICA_SET_CONFIG = "database_replica_set.yml"
