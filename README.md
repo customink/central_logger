@@ -18,8 +18,8 @@ Log to a central MongoDB from Rails apps.
 
 1. If using Rails 3, SKIP this step.  Otherwise, add the following to config/environment.rb:
 
-       require 'central_logger'
-       CentralLogger::Initializer.initialize_deprecated_logger(config)
+        require 'central_logger'
+        CentralLogger::Initializer.initialize_deprecated_logger(config)
 
 1. Add mongo settings to database.yml for each environment in which you want to use the Central Logger. The central logger will also
    look for a separate central_logger.yml or mongoid.yml (if you are using mongoid) before looking in database.yml.
