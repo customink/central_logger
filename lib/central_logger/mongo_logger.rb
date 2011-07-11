@@ -35,7 +35,7 @@ module CentralLogger
 
     def add_metadata(options={})
       options.each_pair do |key, value|
-        unless [:messages, :request_time, :ip, :runtime, :application_name].include?(key.to_sym)
+        unless [:messages, :request_time, :ip, :runtime, :application_name, :is_exception].include?(key.to_sym)
           @mongo_record[key] = value
         else
           raise ArgumentError, ":#{key} is a reserved key for the central logger. Please choose a different key"
@@ -69,6 +69,8 @@ module CentralLogger
       runtime = Benchmark.measure{ yield }.real if block_given?
     rescue Exception => e
       add(3, e.message + "\n" + e.backtrace.join("\n"))
+      # maybe add this to find more quickly errors ?
+      @mongo_record[:is_exception] = true
       # Reraise the exception for anyone else who cares
       raise e
     ensure

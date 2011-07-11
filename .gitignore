@@ -21,6 +21,7 @@ pkg
 cscope.files
 cscope.out
 tags
+.project
 
 ## PROJECT::SPECIFIC
 *.log

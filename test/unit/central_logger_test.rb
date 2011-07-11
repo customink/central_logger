@@ -175,6 +175,7 @@ class CentralLogger::MongoLoggerTest < Test::Unit::TestCase
         should "log the exception" do
           assert_raise(RuntimeError, EXCEPTION_MSG) {log_exception(EXCEPTION_MSG)}
           assert_equal 1, @collection.find_one({"messages.error" => /^#{EXCEPTION_MSG}/})["messages"]["error"].count
+          assert_equal 1, @collection.find_one({"is_exception" => true})["messages"]["error"].count
         end
       end
     end
