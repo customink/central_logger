@@ -1,15 +1,14 @@
 require 'erb'
 require 'mongo'
-require 'active_support'
-require 'active_support/core_ext'
 require 'central_logger/replica_set_helper'
 
 module CentralLogger
   class MongoLogger < ActiveSupport::BufferedLogger
     include ReplicaSetHelper
 
-    PRODUCTION_COLLECTION_SIZE = 250.megabytes
-    DEFAULT_COLLECTION_SIZE = 100.megabytes
+    MB = 2 ** 20
+    PRODUCTION_COLLECTION_SIZE = 256 * MB
+    DEFAULT_COLLECTION_SIZE = 128 * MB
     # Looks for configuration files in this order
     CONFIGURATION_FILES = ["central_logger.yml", "mongoid.yml", "database.yml"]
     LOG_LEVEL_SYM = [:debug, :info, :warn, :error, :fatal, :unknown]
