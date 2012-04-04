@@ -43,6 +43,7 @@ module CentralLogger
     end
 
     def add(severity, message = nil, progname = nil, &block)
+      $stdout.puts message
       if @level <= severity && message.present? && @mongo_record.present?
         # do not modify the original message used by the buffered logger
         msg = logging_colorized? ? message.to_s.gsub(/(\e(\[([\d;]*[mz]?))?)?/, '').strip : message
@@ -143,7 +144,8 @@ module CentralLogger
       def connect
         @mongo_connection ||= Mongo::Connection.new(@db_configuration['host'],
                                                     @db_configuration['port'],
-                                                    :auto_reconnect => true).db(@db_configuration['database'])
+                                                    :auto_reconnect => true,
+                                                    :timeout => 5).db(@db_configuration['database'])
 
         if @db_configuration['username'] && @db_configuration['password']
           # the driver stores credentials in case reconnection is required
