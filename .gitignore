@@ -18,6 +18,7 @@ coverage
 rdoc
 pkg
 .bundle
+.rvmrc
 cscope.files
 cscope.out
 tags
